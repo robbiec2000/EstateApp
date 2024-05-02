@@ -34,10 +34,12 @@ export const getPost = async (req, res) => {
           select: {
             username: true,
             avatar: true,
+            id: true,
           },
         },
       },
     });
+    console.log(post)
 
     let userId = null;
 

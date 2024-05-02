@@ -1,12 +1,14 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./chat.scss";
 import { AuthContext } from "../../context/AuthContext";
 import apiRequest from "../../lib/apiRequest";
 import { format } from "timeago.js";
+import { SocketContext } from "../../context/SocketContext";
 
 function Chat({ chats }) {
   const [chat, setChat] = useState(null);
   const { currentUser } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
 
   const handleOpenChat = async (id, receiver) => {
     try {
@@ -17,17 +19,45 @@ function Chat({ chats }) {
     }
   }
 
+  useEffect(() => {
+
+    const read = async () => {
+      try {
+        await apiRequest.put("/chats/read/"+chat.id);
+      }catch(err){
+        console.log(err);
+      }
+    }
+
+    if (chat && socket) {
+      socket.on("getMessage", (data) => {
+        if (chat.id === data.chatId) {
+          setChat((prev) => ({ ...prev, messages: [...prev.messages, data] }));
+          read();
+        }
+
+      });
+    }
+
+    return () => {
+      socket.off("getMessage");
+    }
+  }, [socket, chat])
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const text = formData.get("text");
     if (!text) return;
     try {
-      const res = await apiRequest.post("/messages" + chat.id, {
+      const res = await apiRequest.post("/messages/" + chat.id, {
         text
       });
-      setChat(prev => ({...prev, messages: [...prev.messages, res.data] }));
+      setChat(prev => ({ ...prev, messages: [...prev.messages, res.data] }));
       e.target.reset();
+      socket.emit("sendMessage", { receiverId: chat.receiver.id, data: res.data });
     } catch (e) {
       console.log(e);
     }
@@ -44,7 +74,7 @@ function Chat({ chats }) {
                 ? "white"
                 : "#fecd514e"
             }}
-              onClick={handleOpenChat(chat.id, chat.receiver)}
+              onClick={() => handleOpenChat(chat.id, chat.receiver)}
             >
               <img
                 src={chat.receiver.avatar || "/noavatar.jpg"}
@@ -76,7 +106,7 @@ function Chat({ chats }) {
                   alignSelf: message.userId === currentUser.id ? "flex-end" : "flex-start",
                   textAlign: message.userId === currentUser.id ? "right" : "left"
                 }}>
-                <p>{message.text}</p>
+                <p style={{backgroundColor:"#ffd4ae4e", padding:"10px 5px", borderRadius:"10px"}}>{message.text}</p>
                 <span>{format(message.createdAt)}</span>
               </div>
             ))}

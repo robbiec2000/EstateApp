@@ -11,6 +11,7 @@ function ProfilePage() {
   const navigate = useNavigate();
   const data = useLoaderData();
   const { currentUser, updateUser } = useContext(AuthContext);
+  console.log("aaaaa");
 
 
   const logout = async () => {

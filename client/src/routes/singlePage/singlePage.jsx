@@ -29,6 +29,20 @@ function SinglePage() {
     }
   }
 
+  const handleAddChat = async () => {
+    if(!currentUser){
+      redirect("/login");
+    }
+    try {
+      await apiRequest.post("/chats", {
+        receiverId: post.user.id,
+    });
+
+    }catch(e){
+      console.log(e);
+    }
+  }
+
   return (
     <div className="singlePage">
       <div className="details">
@@ -129,11 +143,11 @@ function SinglePage() {
             <Map items={[post]} />
           </div>
           <div className="buttons">
-            <button>
+            <button onClick={handleAddChat} disabled={currentUser.id === post.user.id}>
               <img src="/chat.png" alt="" />
               Send a Message
             </button>
-            <button onClick={handleSave} style={{backgroundColor: saved?"#fece51":"white"}}>
+            <button onClick={handleSave} style={{backgroundColor: saved?"#fece51":"white"}} >
               <img src="/save.png" alt="" />
               {saved ? "Place Saved" : "Save the Place"}
             </button>
