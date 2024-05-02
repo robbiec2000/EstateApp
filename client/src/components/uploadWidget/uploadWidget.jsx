@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 
 let cloudinary;
 
-function UploadWidget({uwConfig, setAvatar}) {
+function UploadWidget({uwConfig, setState}) {
   const widget = useRef();
   useEffect(() => {
     // Store the Cloudinary window instance to a ref when the page renders
@@ -51,7 +51,7 @@ function UploadWidget({uwConfig, setAvatar}) {
         // ever occurrence
         if (!error && result && result.event === "success") {
           console.log("Done! Here is the image info: ", result.info);
-          setAvatar(result.info.secure_url);
+          setState((prev) => [...prev, result.info.secure_url]);
         }
       }
     );
