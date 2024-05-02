@@ -3,6 +3,8 @@ import cors from "cors"
 import postRoute from "./routes/post.route.js";
 import authRoute from "./routes/auth.routes.js";
 import userRoute from "./routes/user.routes.js";
+import chatRoute from "./routes/chat.route.js";
+import messageRoute from "./routes/message.route.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -13,6 +15,8 @@ app.use(cookieParser());
 app.use("/api/posts", postRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
+app.use("/api/chats", chatRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(8800, () => {
     console.log("server is running");
