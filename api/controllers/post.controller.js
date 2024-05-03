@@ -6,7 +6,10 @@ export const getPosts = async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: {
-        city: query.city || undefined,
+        city: {
+          contains: query.city || "",
+          mode: "insensitive",
+        },
         type: query.type || undefined,
         property: query.property || undefined,
         bedroom: parseInt(query.bedroom) || undefined,
@@ -39,7 +42,7 @@ export const getPost = async (req, res) => {
         },
       },
     });
-    console.log(post)
+    console.log(post);
 
     let userId = null;
 
